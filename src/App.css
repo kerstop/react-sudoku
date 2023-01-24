@@ -1,5 +1,5 @@
 :root {
-    --tile-size: 30px;
+    --tile-size: 45px;
 }
 
 .sudoku__tile-container {

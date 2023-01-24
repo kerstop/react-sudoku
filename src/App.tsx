@@ -57,44 +57,30 @@ function App() {
             for (let k = 0; k < 3; k++) {
                 tiles.push(offset + k);
             }
-            
         }
 
         return tiles.filter((n) => n !== tile);
     };
 
-    let tileClicked = (i) => {
-        if (board[i].selected === true) return;
+    let tileClicked = (tile: number) => {
+        if (board[tile].selected === true) return;
 
-        console.log("clicked " + i);
-        console.log("related tiles:")
-        console.log(relatedTiles(i))
+        console.log("clicked " + tile);
+        console.log("related tiles:");
+        console.log(relatedTiles(tile));
 
         let board_new = board.slice();
 
-        for (let tile in board_new) {
-            board_new[tile].highlighted = false;
-            board_new[tile].selected = false;
-        }
+        board_new.forEach((tile) => {
+            tile.selected = false;
+            tile.highlighted = false;
+        });
 
-        board_new[i].selected = true;
+        relatedTiles(tile).forEach((i) => {
+            board_new[i].highlighted = true;
+        });
 
-        //highlight vertical and horizantal
-        for (let j = 0; j < 9; j++) {
-            let start_of_row = Math.floor(i / 9) * 9;
-            let column_offset = i % 9;
-
-            board_new[start_of_row + j].highlighted = true;
-            board_new[j * 9 + column_offset].highlighted = true;
-        }
-
-        for (let j = 0; j < 3; j++) {
-            let offset =
-                Math.floor(i / 27) * 27 + Math.floor((i % 9) / 3) * 3 + j * 9;
-            for (let k = 0; k < 3; k++) {
-                board_new[offset + k].highlighted = true;
-            }
-        }
+        board_new[tile].selected = true;
 
         setBoard(board_new);
     };
@@ -125,7 +111,7 @@ function App() {
 function Tile(props) {
     let className = classNames({
         sudoku__tile: true,
-        sudoku__tile__highlighted: props.highlighted ^ props.selected,
+        sudoku__tile__highlighted: props.highlighted,
         sudoku__tile__selected: props.selected,
     });
     return (
