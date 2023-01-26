@@ -13,12 +13,18 @@ function App() {
                     given: false,
                     selected: false,
                     highlighted: false,
+                    error: false,
                 };
             })
     );
 
+    /**
+     *  Callback function for number button component to say
+     *  it has been clicked
+     */
     let numSelected = (n) => {
         let new_board = board.slice();
+
         for (let i in new_board) {
             if (new_board[i].selected === true) {
                 if (new_board[i].given === true) break;
@@ -33,6 +39,10 @@ function App() {
                 break;
             }
         }
+
+        new_board.forEach((tile, i) => {
+            tile.error = checkCollision(i);
+        })
     };
 
     /**
@@ -62,6 +72,9 @@ function App() {
         return tiles.filter((n) => n !== tile);
     };
 
+    /**
+     *  Callback function for the tile components
+     */
     let tileClicked = (tile: number) => {
         if (board[tile].selected === true) return;
 
@@ -85,6 +98,18 @@ function App() {
         setBoard(board_new);
     };
 
+    /**
+     *  Returns true if the tile has a collision
+     */
+    let checkCollision = (tile: number): boolean => {
+        if (board[tile].given || board[tile].value == null) {
+            return false;
+        }
+        return relatedTiles(tile)
+            .map((x) => board[tile].value === board[x].value)
+            .reduce((a, b) => a || b, false);
+    };
+
     return (
         <>
             <div className="sudoku__tile-container">
@@ -94,6 +119,7 @@ function App() {
                             key={i}
                             highlighted={x.highlighted}
                             selected={x.selected}
+                            error={x.error}
                             value={x.value}
                             onClick={() => {
                                 tileClicked(i);
@@ -113,6 +139,7 @@ function Tile(props) {
         sudoku__tile: true,
         sudoku__tile__highlighted: props.highlighted,
         sudoku__tile__selected: props.selected,
+        sudoku__tile__error: props.error,
     });
     return (
         <button className={className} onClick={props.onClick}>
@@ -130,7 +157,7 @@ function NumberButtons(props) {
                     <button
                         key={i}
                         onClick={() => {
-                            props.numSelected(i + 1);
+                            props.numSelected(i);
                         }}
                         className="sudoku__number-button"
                     >
