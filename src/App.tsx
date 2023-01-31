@@ -11,38 +11,45 @@ type Tile = {
     error: boolean;
 }
 
-type Board = Tile[]
+class Board {
+    tiles: Tile[];
+    constructor(board?: Board) {
+        if (board === undefined) {
+            this.tiles = Array(81)
+                .fill(null)
+                .map(() => {
+                    return {
+                        value: null,
+                        given: false,
+                        selected: false,
+                        highlighted: false,
+                        error: false,
+                    };
+                })
+        } else {
+            this.tiles = board.tiles.slice()
+        }
+    }
+}
 
 function App() {
-    let [board, setBoard] = useState<Board>(() =>
-        Array(81)
-            .fill(null)
-            .map(() => {
-                return {
-                    value: null,
-                    given: false,
-                    selected: false,
-                    highlighted: false,
-                    error: false,
-                };
-            })
-    );
+    let [board, setBoard] = useState<Board>(() => new Board());
 
     /**
      *  Callback function for number button component to say
      *  it has been clicked
      */
     let numSelected = (n: number) => {
-        let new_board = board.slice();
+        let new_board = new Board(board);
 
-        for (let i in new_board) {
-            if (new_board[i].selected === true) {
-                if (new_board[i].given === true) break;
+        for (let i in new_board.tiles) {
+            if (new_board.tiles[i].selected === true) {
+                if (new_board.tiles[i].given === true) break;
 
                 if (n === 0) {
-                    new_board[i].value = null;
+                    new_board.tiles[i].value = null;
                 } else {
-                    new_board[i].value = n;
+                    new_board.tiles[i].value = n;
                 }
 
                 setBoard(new_board);
@@ -50,7 +57,7 @@ function App() {
             }
         }
 
-        new_board.forEach((tile, i) => {
+        new_board.tiles.forEach((tile, i) => {
             tile.error = checkCollision(i);
         })
     };
@@ -86,24 +93,24 @@ function App() {
      *  Callback function for the tile components
      */
     let tileClicked = (tile: number) => {
-        if (board[tile].selected === true) return;
+        if (board.tiles[tile].selected === true) return;
 
         console.log("clicked " + tile);
         console.log("related tiles:");
         console.log(relatedTiles(tile));
 
-        let board_new = board.slice();
+        let board_new = new Board(board);
 
-        board_new.forEach((tile) => {
+        board_new.tiles.forEach((tile) => {
             tile.selected = false;
             tile.highlighted = false;
         });
 
         relatedTiles(tile).forEach((i) => {
-            board_new[i].highlighted = true;
+            board_new.tiles[i].highlighted = true;
         });
 
-        board_new[tile].selected = true;
+        board_new.tiles[tile].selected = true;
 
         setBoard(board_new);
     };
@@ -112,18 +119,18 @@ function App() {
      *  Returns true if the tile has a collision
      */
     let checkCollision = (tile: number): boolean => {
-        if (board[tile].given || board[tile].value == null) {
+        if (board.tiles[tile].given || board.tiles[tile].value == null) {
             return false;
         }
         return relatedTiles(tile)
-            .map((x) => board[tile].value === board[x].value)
+            .map((x) => board.tiles[tile].value === board.tiles[x].value)
             .reduce((a, b) => a || b, false);
     };
 
     return (
         <>
             <div className="sudoku__tile-container">
-                {board.map((x, i) => {
+                {board.tiles.map((x, i) => {
                     return (
                         <Tile
                             key={i}
@@ -152,7 +159,7 @@ interface TileProps {
     value: number | null;
 }
 
-function Tile(props:TileProps) {
+function Tile(props: TileProps) {
     let className = classNames({
         sudoku__tile: true,
         sudoku__tile__highlighted: props.highlighted,
@@ -171,7 +178,7 @@ interface NumberButtonsProps {
 
 }
 
-function NumberButtons(props:NumberButtonsProps) {
+function NumberButtons(props: NumberButtonsProps) {
     return (
         <div className="sudoku__number-button-container">
             {Array(10)
