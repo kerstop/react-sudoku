@@ -3,8 +3,18 @@ import React from "react";
 import classNames from "classnames";
 import "./App.css";
 
+type Tile = {
+    value: number | null;
+    given: boolean;
+    selected: boolean;
+    highlighted: boolean;
+    error: boolean;
+}
+
+type Board = Tile[]
+
 function App() {
-    let [board, setBoard] = useState(() =>
+    let [board, setBoard] = useState<Board>(() =>
         Array(81)
             .fill(null)
             .map(() => {
@@ -22,7 +32,7 @@ function App() {
      *  Callback function for number button component to say
      *  it has been clicked
      */
-    let numSelected = (n) => {
+    let numSelected = (n: number) => {
         let new_board = board.slice();
 
         for (let i in new_board) {
@@ -129,12 +139,20 @@ function App() {
                 })}
             </div>
 
-            <NumberButtons numSelected={numSelected} />
+            <NumberButtons callBack={numSelected} />
         </>
     );
 }
 
-function Tile(props) {
+interface TileProps {
+    highlighted: boolean;
+    selected: boolean;
+    error: boolean;
+    onClick: () => void;
+    value: number | null;
+}
+
+function Tile(props:TileProps) {
     let className = classNames({
         sudoku__tile: true,
         sudoku__tile__highlighted: props.highlighted,
@@ -148,7 +166,12 @@ function Tile(props) {
     );
 }
 
-function NumberButtons(props) {
+interface NumberButtonsProps {
+    callBack: (num_selected: number) => void;
+
+}
+
+function NumberButtons(props:NumberButtonsProps) {
     return (
         <div className="sudoku__number-button-container">
             {Array(10)
@@ -157,7 +180,7 @@ function NumberButtons(props) {
                     <button
                         key={i}
                         onClick={() => {
-                            props.numSelected(i);
+                            props.callBack(i);
                         }}
                         className="sudoku__number-button"
                     >
