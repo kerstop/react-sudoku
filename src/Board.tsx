@@ -6,7 +6,7 @@ export type TileType = {
 }
 
 export interface BoardInterface {
-    tiles: TileType[]
+    tiles: TileType[],
 }
 
 export class Board implements BoardInterface {
@@ -14,7 +14,7 @@ export class Board implements BoardInterface {
     tiles: TileType[];
 
     constructor(bp: BoardInterface) {
-        this.tiles = bp.tiles;
+        this.tiles = bp.tiles.map((v) => {return {...v}});
     }
 
     getRelated(tile: number): number[] {
@@ -68,9 +68,6 @@ export class Board implements BoardInterface {
                     return {
                         value: null,
                         given: false,
-                        selected: false,
-                        highlighted: false,
-                        error: false,
                     };
                 })
         }
@@ -80,24 +77,29 @@ export class Board implements BoardInterface {
 
         // the function will try to pick random numbers for each
         // tile recursively
-        function trySolutions(index: number, t: (number | null)[]): number[] | null {
-            if (index === t.length) {
-                return t.map((v) => v === null ? 0 : v);
+        function trySolutions(index: number, board: Board): BoardInterface | null {
+            console.log(`checking ${index}`)
+            if (index === board.tiles.length) {
+                return board;
             }
-            // let each tile keep track of which numbers it has already guessed
-            let unattempted_numbers = Array(9).fill(false).map((_, i) => i + 1);
+            // let each function call keep track of which numbers
+            // it has already guessed for its tile
+            let unattempted_numbers = Array(9).fill(null).map((_, i) => i + 1);
             unattempted_numbers = _.shuffle(unattempted_numbers)
 
-            let tiles = t.slice()
+            let new_board = new Board(board)
             for (let num of unattempted_numbers) {
-                tiles[index] = num;
+                new_board.tiles[index].value = num;
 
-                if (Board.prototype.checkCollision.call({ tiles: tiles }, index)) {
+                if (new_board.checkCollision(index)) {
                     continue;
                 }
 
-                let possible_solution = trySolutions(index + 1, tiles)
-                if (possible_solution !== null) {
+                let possible_solution = trySolutions(index + 1, new_board)
+                if (possible_solution === null) {
+                    continue;
+                }
+                else {
                     return possible_solution;
                 }
             }
@@ -107,26 +109,15 @@ export class Board implements BoardInterface {
 
         }
 
-        let solution = trySolutions(0, Array(81).fill(null))
+        let solution = trySolutions(0, new Board(Board.getBlankBoardBlueprint()))
 
-        if (solution !== null) {
-            console.log(solution)
-            return {
-                tiles: solution.map((v) => {
-                    return {
-                        value: v,
-                        given: true,
-                        error: false,
-                        selected: false,
-                        highlighted: false
-                    };
-                })
-            };
+        if (solution === null) {
+            console.error("unable to find a solution")
+            return this.getBlankBoardBlueprint();
         }
 
-        console.error("unable to find a solution")
-
-        return this.getBlankBoardBlueprint();
+        console.log(solution)
+        return solution;
     }
 }
 
