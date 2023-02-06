@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import React from "react";
 import classNames from "classnames";
+import * as _ from "lodash";
 
 import { Board } from "./Board";
 import "./App.css";
@@ -10,6 +11,21 @@ import { TileComponent } from "./Components/Tile";
 
 function App() {
     let [board, setBoard] = useState<Board>(() => new Board(Board.getBlankBoardBlueprint()));
+    let [selected, setSelected] = useState<number>(0)
+    let highlightes: Set<number> = new Set();
+    let errors: Set<number> = new Set();
+
+    for (let i of board.getRelated(selected)) {
+        highlightes.add(i)
+    }
+
+    board.tiles.forEach((_, i) => {
+        if (board.checkCollision(i)) {
+            errors.add(i)
+        }
+    })    
+
+
 
     /**
      *  Callback function for number button component to say
@@ -18,46 +34,20 @@ function App() {
     let numSelected = (n: number) => {
         let new_board: Board = new Board(board);
 
-        for (let i in new_board.tiles) {
-            if (new_board.tiles[i].selected === true) {
-                if (new_board.tiles[i].given === true) break;
+        if (new_board.tiles[selected].given) return;
 
-                if (n === 0) {
-                    new_board.tiles[i].value = null;
-                } else {
-                    new_board.tiles[i].value = n;
-                }
+        new_board.tiles[selected].value = n === 0? null : n;
 
-                setBoard(new_board);
-                break;
-            }
-        }
-
-        new_board.tiles.forEach((tile, i) => {
-            tile.error = board.checkCollision(i);
-        })
+        setBoard(new_board);
     };
 
-        /**
-     *  Callback function for the tile components
-     */
+    /**
+ *  Callback function for the tile components
+ */
     let tileClicked = (tile: number) => {
-        if (board.tiles[tile].selected === true) return;
+        if (tile === selected) return;
 
-        let board_new = new Board(board);
-
-        board_new.tiles.forEach((tile) => {
-            tile.selected = false;
-            tile.highlighted = false;
-        });
-
-        board.getRelated(tile).forEach((i) => {
-            board_new.tiles[i].highlighted = true;
-        });
-
-        board_new.tiles[tile].selected = true;
-
-        setBoard(board_new);
+        setSelected(tile);
     };
 
     return (
@@ -68,6 +58,9 @@ function App() {
                         <TileComponent
                             key={i}
                             tile={x}
+                            selected={i === selected}
+                            error={board.checkCollision(i)}
+                            highlighted={highlightes.has(i)}
                             onClick={() => {
                                 tileClicked(i);
                             }}
@@ -77,6 +70,10 @@ function App() {
             </div>
 
             <NumberButtons callBack={numSelected} />
+
+            <button onClick={() => { setBoard(new Board(Board.getSolved())) }}>
+                get a solved board
+            </button>
         </>
     );
 }
