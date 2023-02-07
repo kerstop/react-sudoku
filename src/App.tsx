@@ -23,7 +23,7 @@ function App() {
         if (board.checkCollision(i)) {
             errors.add(i)
         }
-    })    
+    })
 
 
 
@@ -36,23 +36,33 @@ function App() {
 
         if (new_board.tiles[selected].given) return;
 
-        new_board.tiles[selected].value = n === 0? null : n;
+        new_board.tiles[selected].value = n === 0 ? null : n;
 
         setBoard(new_board);
     };
 
     /**
- *  Callback function for the tile components
- */
+    *  Callback function for the tile components
+    */
     let tileClicked = (tile: number) => {
         if (tile === selected) return;
 
         setSelected(tile);
     };
 
+    let numButonPressed = (e: React.KeyboardEvent) => {
+        let keyPressed = parseInt(e.key)
+        if (!Number.isNaN(keyPressed)) {
+            numSelected(parseInt(e.key))
+        }
+    }
+
     return (
         <>
-            <div className="sudoku__tile-container">
+            <div
+                className="sudoku__tile-container"
+                onKeyDown={numButonPressed}
+            >
                 {board.tiles.map((x, i) => {
                     return (
                         <TileComponent

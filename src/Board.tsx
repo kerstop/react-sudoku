@@ -14,7 +14,7 @@ export class Board implements BoardInterface {
     tiles: TileType[];
 
     constructor(bp: BoardInterface) {
-        this.tiles = bp.tiles.map((v) => {return {...v}});
+        this.tiles = structuredClone(bp.tiles);
     }
 
     getRelated(tile: number): number[] {
@@ -78,7 +78,6 @@ export class Board implements BoardInterface {
         // the function will try to pick random numbers for each
         // tile recursively
         function trySolutions(index: number, board: Board): BoardInterface | null {
-            console.log(`checking ${index}`)
             if (index === board.tiles.length) {
                 return board;
             }
@@ -116,7 +115,7 @@ export class Board implements BoardInterface {
             return this.getBlankBoardBlueprint();
         }
 
-        console.log(solution)
+        console.log("Found solution: ", solution)
         return solution;
     }
 }
