@@ -15,28 +15,6 @@
     justify-content: center;
 }
 
-.sudoku__tile {
-    width: var(--tile-size);
-    height: var(--tile-size);
-    border-style: solid;
-    border-width: 2px;
-    border-color: black;
-    font-size: calc(var(--tile-size) - 12px);
-    justify-content: center;
-}
-
-.sudoku__tile__selected {
-    background-color: hsl(230, 40%, 40%);
-}
-
-.sudoku__tile__highlighted {
-    background-color: hsl(230, 40%, 60%);
-
-}
-
-.sudoku__tile__error {
-    color: red;
-}
 
 .sudoku__number-button-container {
     display:grid;

@@ -10,10 +10,11 @@ import { TileComponent } from "./Components/Tile";
 
 
 function App() {
-    let [board, setBoard] = useState<Board>(() => new Board(Board.getBlankBoardBlueprint()));
+    let [board, setBoard] = useState<Board>(() => new Board(Board.getBlank()));
     let [selected, setSelected] = useState<number>(0)
     let highlightes: Set<number> = new Set();
     let errors: Set<number> = new Set();
+    let [solutions, setSolutions] = useState(0);
 
     for (let i of board.getRelated(selected)) {
         highlightes.add(i)
@@ -83,6 +84,12 @@ function App() {
 
             <button onClick={() => { setBoard(new Board(Board.getSolved())) }}>
                 get a solved board
+            </button>
+            <button onClick={() => { setSolutions(board.getTotalPossibleSolutions()) }}>
+                The number of solutions is: {solutions}
+            </button>
+            <button onClick={() => { setBoard(new Board(Board.getPuzzle())) }}>
+                Get a puzzle
             </button>
         </>
     );

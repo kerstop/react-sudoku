@@ -1,0 +1,28 @@
+
+.sudoku__tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    border-style: solid;
+    border-width: 2px;
+    border-color: black;
+    font-size: calc(var(--tile-size) - 15px);
+    justify-content: center;
+    color: hsl(230, 80%, 25%);
+}
+
+.sudoku__tile__selected {
+    background-color: #33727f;
+}
+
+.sudoku__tile__highlighted {
+    background-color: #85aab2;
+
+}
+
+.sudoku__tile__error {
+    color: #84200d;
+}
+
+.sudoku__tile__given {
+    color: hsl(0, 0%, 0%);
+}

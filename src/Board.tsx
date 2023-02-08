@@ -60,7 +60,37 @@ export class Board implements BoardInterface {
         }
     }
 
-    static getBlankBoardBlueprint(): BoardInterface {
+    getTotalPossibleSolutions(): number {
+
+        function recurse(index: number, board: Board): number {
+            if (board.tiles.length === index) {
+                return 1;
+            }
+            if (board.tiles[index].value !== null) {
+                return recurse(index + 1, board)
+            }
+
+            let new_board = new Board(board) 
+
+            let numbers = Array(9).fill(null).map((_,i) => i+1)
+
+            let possible_solutions = 0;
+
+            for(let i of numbers) {
+                new_board.tiles[index].value = i;
+                if(!new_board.checkCollision(index)){
+                    possible_solutions += recurse(index+1, new_board)
+                }
+            }
+
+            return possible_solutions;
+
+        }
+
+        return recurse(0, this);
+    }
+
+    static getBlank(): BoardInterface {
         return {
             tiles: Array(81)
                 .fill(null)
@@ -108,15 +138,39 @@ export class Board implements BoardInterface {
 
         }
 
-        let solution = trySolutions(0, new Board(Board.getBlankBoardBlueprint()))
+        let solution = trySolutions(0, new Board(Board.getBlank()))
 
         if (solution === null) {
             console.error("unable to find a solution")
-            return this.getBlankBoardBlueprint();
+            return this.getBlank();
         }
 
         console.log("Found solution: ", solution)
         return solution;
+    }
+
+    static getPuzzle(): BoardInterface {
+        let solution = Board.getSolved();
+        let puzzle = new Board(solution);
+       
+        // try removing a hint
+        while (true) {
+            let hint_to_remove = Math.floor(Math.random() * 81);
+
+            puzzle.tiles[hint_to_remove].value = null;
+            puzzle.tiles[hint_to_remove].given = false;
+            // check that the solution is uniq
+
+            if(puzzle.getTotalPossibleSolutions() > 1) {
+                puzzle.tiles[hint_to_remove].value = solution.tiles[hint_to_remove].value
+                break;
+            }
+             
+        }
+
+        puzzle.tiles.forEach((tile) => { tile.given = tile.value !== null})
+
+        return puzzle;
     }
 }
 
